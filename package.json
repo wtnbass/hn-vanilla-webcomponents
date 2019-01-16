@@ -1,0 +1,22 @@
+{
+  "name": "hn-vanilla-webcomponents",
+  "version": "1.0.0",
+  "description": "Hacker News Reader with Vanilla WebComponents",
+  "main": "index.js",
+  "scripts": {
+    "start": "http-server -c-1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wtnbass/hn-vanilla-webcomponents.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/wtnbass/hn-vanilla-webcomponents/issues"
+  },
+  "homepage": "https://github.com/wtnbass/hn-vanilla-webcomponents#readme",
+  "devDependencies": {
+    "http-server": "0.11.1"
+  }
+}
