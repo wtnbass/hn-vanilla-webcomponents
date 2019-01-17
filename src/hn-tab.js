@@ -1,10 +1,10 @@
-import { Component } from "./wclib.js";
+import { Component } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
 import { store } from "./store.js";
 
 class HnTab extends Component.withStore(store) {
-  didRender() {
-    this.$tabs = this.shadowRoot.querySelectorAll("[data-view]");
+  didRender($) {
+    this.$tabs = $.all("[data-view]");
   }
 
   render() {

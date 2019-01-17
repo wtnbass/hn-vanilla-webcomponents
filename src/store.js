@@ -1,4 +1,4 @@
-import { createStore } from "./wclib.js";
+import { createStore } from "./utils.js";
 
 export const store = createStore({
   isLoading: false,

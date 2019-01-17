@@ -39,7 +39,6 @@ export const createStore = (state = {}) => {
       updatingError();
       updateState(nextState);
       storeEvent.dispatch(state);
-      return state;
     },
     subscribe(fn) {
       return storeEvent.subscribe(fn);
@@ -56,7 +55,6 @@ export class Component extends HTMLElement {
 
     const $ = s => this.shadowRoot.querySelector(s);
     $.all = s => this.shadowRoot.querySelectorAll(s);
-    $.on = (el, name, fn) => el.addEventListener(name, fn);
 
     this.didRender($);
   }
@@ -72,14 +70,15 @@ Component.withStore = store =>
   class extends Component {
     connectedCallback() {
       let prevState = {};
-      this.__unsubscribe__ = store.subscribe(() => {
+
+      const update = () => {
         const state = store.getState();
         this.stateChanged(state, prevState);
         prevState = state;
-      });
-      const state = store.getState();
-      this.stateChanged(state, prevState);
-      prevState = state;
+      };
+
+      this.__unsubscribe__ = store.subscribe(update);
+      update();
     }
 
     disconnectedCallback() {

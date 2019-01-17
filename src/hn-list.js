@@ -1,4 +1,4 @@
-import { Component, makeTemplate, removeChildren } from "./wclib.js";
+import { Component, makeTemplate, removeChildren } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
 import { store } from "./store.js";
 

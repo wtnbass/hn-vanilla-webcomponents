@@ -72,7 +72,7 @@ const fetchList = () => {
 
 const fetchItem = id => {
   requestItem();
-  return fetch(`http://node-hnapi.herokuapp.com/item/${id}`)
+  return fetch(`https://node-hnapi.herokuapp.com/item/${id}`)
     .then(res => res.json())
     .then(successItem)
     .catch(errorFetch);

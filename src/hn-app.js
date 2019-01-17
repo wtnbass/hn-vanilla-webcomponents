@@ -1,4 +1,4 @@
-import { Component } from "./wclib.js";
+import { Component } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
 import { store } from "./store.js";
 import { changeLocation } from "./actions.js";
