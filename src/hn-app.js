@@ -1,4 +1,4 @@
-import { Component } from "./utils.js";
+import { html, ShadowComponent, connect } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
 import { store } from "./store.js";
 import { changeLocation } from "./actions.js";
@@ -8,12 +8,11 @@ import "./hn-list.js";
 import "./hn-item.js";
 import "./hn-spinner.js";
 
-class HnApp extends Component.withStore(store) {
+class HnApp extends connect(store)(ShadowComponent) {
   render() {
-    return `
+    return html`
       <style>
-        ${sharedStyle}
-        :host {
+        ${sharedStyle} :host {
           background: #fefefe;
         }
         header {
@@ -46,7 +45,7 @@ class HnApp extends Component.withStore(store) {
     `;
   }
 
-  didRender($) {
+  mounted($) {
     this.$main = $("main");
 
     const navigate = () => {
@@ -57,10 +56,12 @@ class HnApp extends Component.withStore(store) {
     navigate();
   }
 
-  stateChanged(state, prevState) {
-    if (state.page !== prevState.page) {
-      this.$main.setAttribute("page", state.page);
-    }
+  stateChanged(state) {
+    this.$main.setAttribute("page", state.page);
+  }
+
+  static get observedState() {
+    return ["page"];
   }
 }
 

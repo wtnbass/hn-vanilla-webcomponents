@@ -13,9 +13,3 @@ export const sharedStyle = `
     color: #828282;
   }
 `;
-
-document.head.appendChild(
-  Object.assign(document.createElement("style"), {
-    textContent: sharedStyle
-  })
-);

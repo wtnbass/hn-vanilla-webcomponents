@@ -1,17 +1,16 @@
-import { Component } from "./utils.js";
+import { html, ShadowComponent, connect } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
 import { store } from "./store.js";
 
-class HnTab extends Component.withStore(store) {
-  didRender($) {
+class HnTab extends connect(store)(ShadowComponent) {
+  mounted($) {
     this.$tabs = $.all("[data-view]");
   }
 
   render() {
-    return `
+    return html`
       <style>
-        ${sharedStyle}
-        ul {
+        ${sharedStyle} ul {
           display: flex;
           flex-flow: row;
           list-style: none;
@@ -42,9 +41,11 @@ class HnTab extends Component.withStore(store) {
     `;
   }
 
-  stateChanged(state, prevState) {
-    if (state.view === prevState.view) return;
+  static get observedState() {
+    return ["view"];
+  }
 
+  stateChanged(state, prevState) {
     this.$tabs.forEach(node => {
       if (node.dataset.view === state.view) {
         node.classList.add("selected");

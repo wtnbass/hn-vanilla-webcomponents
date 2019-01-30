@@ -1,14 +1,14 @@
-import { Component } from "./utils.js";
+import { html, ShadowComponent } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
 import { store } from "./store.js";
 
-class HnSummary extends Component {
+class HnSummary extends ShadowComponent {
   render() {
     const id = this.getAttribute("item-id");
     const state = store.getState();
     const news = state.items[id];
 
-    return `
+    return html`
       <style>
         ${sharedStyle}
         .summary {
@@ -25,13 +25,15 @@ class HnSummary extends Component {
       <div class="summary">
         ${
           news.domain
-            ? `
-            <a class="title" href=${news.url} target="_blank">${news.title}</a>
-            <small>(${news.domain})</small>
-          `
-            : `
-            <a class="title" href="#/item/${news.id}">${news.title}</a>
-          `
+            ? html`
+                <a class="title" href=${news.url} target="_blank"
+                  >${news.title}</a
+                >
+                <small>(${news.domain})</small>
+              `
+            : html`
+                <a class="title" href="#/item/${news.id}">${news.title}</a>
+              `
         }
         <div class="summary-details">
           <small>

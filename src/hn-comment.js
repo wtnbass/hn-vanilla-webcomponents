@@ -1,17 +1,16 @@
-import { Component } from "./utils.js";
+import { html, unsafeHtml, ShadowComponent, connect } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
 import { store } from "./store.js";
 
-class HnComment extends Component.withStore(store) {
+class HnComment extends connect(store)(ShadowComponent) {
   render() {
     const id = this.getAttribute("item-id");
     const state = store.getState();
     const { user, time_ago, content, comments } = state.comments[id];
 
-    return `
+    return html`
       <style>
-        ${sharedStyle}
-        details {
+        ${sharedStyle} details {
           margin: 3px 0;
         }
         summary {
@@ -27,7 +26,7 @@ class HnComment extends Component.withStore(store) {
       </style>
       <details open>
         <summary>${user} ${time_ago}</summary>
-        <p>${content}</p>
+        <p>${unsafeHtml`${content}`}</p>
         <div class="child">
           ${this.commentList(comments)}
         </div>
@@ -37,9 +36,12 @@ class HnComment extends Component.withStore(store) {
 
   commentList(comments) {
     if (!comments) return "";
-    return comments
-      .map(({ id }) => `<hn-comment item-id=${id}></hn-comment>`)
-      .join("");
+    return comments.map(
+      ({ id }) =>
+        html`
+          <hn-comment item-id=${id}></hn-comment>
+        `
+    );
   }
 }
 

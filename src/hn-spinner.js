@@ -1,16 +1,15 @@
-import { Component } from "./utils.js";
+import { html, ShadowComponent, connect } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
 import { store } from "./store.js";
 
-class HnSpinner extends Component.withStore(store) {
-  didRender($) {
+class HnSpinner extends connect(store)(ShadowComponent) {
+  mounted($) {
     this.$spinner = $(".spinner");
   }
   render() {
-    return `
+    return html`
       <style>
-        ${sharedStyle}
-        .spinner {
+        ${sharedStyle} .spinner {
           position: absolute;
           top: calc(50% - 50px);
           left: calc(50% - 50px);
@@ -22,17 +21,22 @@ class HnSpinner extends Component.withStore(store) {
           animation: spin 1s linear infinite;
         }
         @keyframes spin {
-          from { transform: rotate(0deg) }
-          to { transform: rotate(360deg) }
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
         }
       </style>
       <div class="spinner"></div>
     `;
   }
 
-  stateChanged(state, prevState) {
-    if (state.isLoading === prevState.isLoading) return;
-
+  static get observedState() {
+    return ["isLoading"];
+  }
+  stateChanged(state) {
     const { isLoading } = state;
     this.$spinner.style.display = isLoading ? "" : "none";
   }

@@ -1,19 +1,18 @@
-import { Component, makeTemplate, removeChildren } from "./utils.js";
+import { html, ShadowComponent, connect, mount } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
 import { store } from "./store.js";
 
 import "./hn-summary.js";
 
-class HnList extends Component.withStore(store) {
-  didRender($) {
+class HnList extends connect(store)(ShadowComponent) {
+  mounted($) {
     this.$list = $(".list");
   }
 
   render() {
-    return `
+    return html`
       <style>
-        ${sharedStyle}
-        ul {
+        ${sharedStyle} ul {
           list-style: none;
         }
         li {
@@ -24,27 +23,23 @@ class HnList extends Component.withStore(store) {
     `;
   }
 
-  createList(list) {
-    for (const news of list) {
-      this.$list.appendChild(
-        makeTemplate(`
-          <li>
-            <hn-summary item-id=${news.id}></hn-summary>
-          </li>
-        `)
-      );
-    }
+  static get observedState() {
+    return ["list"];
   }
 
-  stateChanged(state, prevState) {
-    if (state.list !== prevState.list) {
-      removeChildren(this.$list);
-      this.createList(state.list);
-    }
-    if (state.error) {
-      removeChildren(this.$list);
-      this.$list.appendChild(document.createTextNode("Error"));
-    }
+  stateChanged(state) {
+    mount(
+      html`
+        ${state.list.map(
+          news => html`
+            <li>
+              <hn-summary item-id=${news.id}></hn-summary>
+            </li>
+          `
+        )}
+      `,
+      this.$list
+    );
   }
 }
 

@@ -1,16 +1,16 @@
-import { Component, makeTemplate, removeChildren } from "./utils.js";
+import { html, unsafeHtml, ShadowComponent, connect, mount } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
 import { store } from "./store.js";
 
 import "./hn-comment.js";
 
-class HnItem extends Component.withStore(store) {
-  didRender($) {
+class HnItem extends connect(store)(ShadowComponent) {
+  mounted($) {
     this.$item = $(".item");
   }
 
   render() {
-    return `
+    return html`
       <style>
         ${sharedStyle}
       </style>
@@ -18,41 +18,54 @@ class HnItem extends Component.withStore(store) {
     `;
   }
 
-  stateChanged(state, prevState) {
-    if (state.item !== prevState.item && state.item) {
-      const {
-        url,
-        title,
-        points,
-        user,
-        time_ago,
-        comments,
-        comments_count,
-        content
-      } = state.item;
+  static get observedState() {
+    return ["item"];
+  }
 
-      removeChildren(this.$item);
-      this.$item.appendChild(
-        makeTemplate(`
-          <h3>
-            ${content ? title : `<a href="${url}" target="_blank">${title}</a>`}
-          </h3>
-          <small>
-            ${points} points by ${user} ${time_ago}
-            | ${comments_count} comments
-          </small>
-          ${content ? `<p>${content}</p>` : ""}
-          <div>${this.commentList(comments)}</div>
-        `)
-      );
-    }
+  stateChanged(state) {
+    if (!state.item) return;
+    const {
+      url,
+      title,
+      points,
+      user,
+      time_ago,
+      comments,
+      comments_count,
+      content
+    } = state.item;
+
+    mount(
+      html`
+        <h3>
+          ${content
+            ? title
+            : html`
+                <a href="${url}" target="_blank">${title}</a>
+              `}
+        </h3>
+        <small>
+          ${points} points by ${user} ${time_ago} | ${comments_count} comments
+        </small>
+        ${content
+          ? unsafeHtml`
+              <p>${content}</p>
+            `
+          : ""}
+        <div>${this.commentList(comments)}</div>
+      `,
+      this.$item
+    );
   }
 
   commentList(comments) {
     if (!comments) return "";
-    return comments
-      .map(({ id }) => `<hn-comment item-id=${id}></hn-comment>`)
-      .join("");
+    return comments.map(
+      ({ id }) =>
+        html`
+          <hn-comment item-id=${id}></hn-comment>
+        `
+    );
   }
 }
 
