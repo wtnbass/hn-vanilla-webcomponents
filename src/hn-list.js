@@ -1,10 +1,10 @@
-import { html, ShadowComponent, connect, mount } from "./utils.js";
+import { html, Component, connect, mount } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
 import { store } from "./store.js";
 
 import "./hn-summary.js";
 
-class HnList extends connect(store)(ShadowComponent) {
+class HnList extends connect(store)(Component) {
   mounted($) {
     this.$list = $(".list");
   }
@@ -27,16 +27,17 @@ class HnList extends connect(store)(ShadowComponent) {
     return ["list"];
   }
 
-  stateChanged(state) {
+  stateChanged(state, prevState) {
+    if (state.list === prevState.list) return;
     mount(
       html`
-        ${state.list.map(
-          news => html`
-            <li>
-              <hn-summary item-id=${news.id}></hn-summary>
-            </li>
-          `
-        )}
+        ${
+          state.list.map(
+            news => html`
+              <li><hn-summary item-id=${news.id}></hn-summary></li>
+            `
+          )
+        }
       `,
       this.$list
     );

@@ -18,16 +18,11 @@ store.subscribe(() => {
 });
 
 const getTitle = state => {
-  let title = "HN";
-  let moreInfo;
   if (state.page === "list") {
-    moreInfo = state.view;
-  } else if (state.page === "item") {
-    moreInfo = state.item.title;
+    return `HN - ${state.view}`;
   }
-
-  if (moreInfo) {
-    title += " - " + moreInfo;
+  if (state.page === "item") {
+    return `HN - ${state.item.title}`;
   }
-  return title;
+  return "HN";
 };

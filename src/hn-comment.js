@@ -1,8 +1,8 @@
-import { html, unsafeHtml, ShadowComponent, connect } from "./utils.js";
+import { html, Component } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
 import { store } from "./store.js";
 
-class HnComment extends connect(store)(ShadowComponent) {
+class HnComment extends Component {
   render() {
     const id = this.getAttribute("item-id");
     const state = store.getState();
@@ -26,10 +26,8 @@ class HnComment extends connect(store)(ShadowComponent) {
       </style>
       <details open>
         <summary>${user} ${time_ago}</summary>
-        <p>${unsafeHtml`${content}`}</p>
-        <div class="child">
-          ${this.commentList(comments)}
-        </div>
+        <p>${html.unsafe`${content}`}</p>
+        <div class="child">${this.commentList(comments)}</div>
       </details>
     `;
   }

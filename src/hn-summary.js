@@ -1,8 +1,8 @@
-import { html, ShadowComponent } from "./utils.js";
+import { html, Component } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
 import { store } from "./store.js";
 
-class HnSummary extends ShadowComponent {
+class HnSummary extends Component {
   render() {
     const id = this.getAttribute("item-id");
     const state = store.getState();

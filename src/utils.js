@@ -1,94 +1,62 @@
-export const html = (strings, ...values) => ({
-  strings,
-  values,
-  unsafe: false
-});
+export const html = (strings, ...values) => ({ strings, values });
 
-export const unsafeHtml = (strings, ...values) => ({
-  strings,
-  values,
-  unsafe: true
-});
+html.unsafe = (strings, ...values) => ({ strings, values, unsafe: true });
 
-const render = ({ strings, values, unsafe }) =>
-  strings.map((s, i) => s + resolveValue(values[i], unsafe)).join("");
+export const render = ({ strings, values, unsafe }) =>
+  strings.map((s, i) => s + resolve(values[i], unsafe)).join("");
 
 const isTagged = maybeTagged =>
   typeof maybeTagged === "object" &&
   Array.isArray(maybeTagged.strings) &&
   Array.isArray(maybeTagged.values);
 
-const resolveValue = (value, unsafe) => {
+const resolve = (value, unsafe) => {
   if (value == null) return "";
-  if (Array.isArray(value))
-    return value.map(v => resolveValue(v, unsafe)).join("");
+  if (Array.isArray(value)) return value.map(v => resolve(v, unsafe)).join("");
   if (isTagged(value)) return render(value);
   if (unsafe) return String(value);
   return String(value).replace(/[&"'`<>]/g, c => `&#${c.charCodeAt(0)};`);
 };
 
-const createNode = html => {
-  const tmpl = document.createElement("template");
-  tmpl.innerHTML = html;
-  return tmpl.content;
-};
-
-export const removeChildren = node => {
-  while (node.firstChild) {
-    node.removeChild(node.firstChild);
-  }
-};
-
 export const mount = (tagged, root) => {
-  removeChildren(root);
-  const html = render(tagged);
-  root.appendChild(createNode(html));
+  while (root.firstChild) {
+    root.removeChild(root.firstChild);
+  }
+  const tmpl = document.createElement("template");
+  tmpl.innerHTML = render(tagged);
+  root.appendChild(tmpl.content);
 };
 
-const createComponentClass = ({ shadow }) =>
-  class Component extends HTMLElement {
-    constructor() {
-      super();
-      shadow && this.attachShadow({ mode: "open" });
-      mount(this.render(), this.rootNode);
-
-      const $ = s => this.rootNode.querySelector(s);
-      $.all = s => this.rootNode.querySelectorAll(s);
-      this.mounted($);
-    }
-
-    get rootNode() {
-      return shadow ? this.shadowRoot : this;
-    }
-
-    render() {
-      throw new Error("render() must be implemented.");
-    }
-
-    mounted($) {}
-  };
-
-export const LightComponent = createComponentClass({ shadow: false });
-
-export const ShadowComponent = createComponentClass({ shadow: true });
-
-export const createPubSub = name => ({
-  publish(detail) {
-    window.dispatchEvent(new CustomEvent(name, { detail }));
-  },
-  subscribe(f) {
-    const l = e => f(e.detail);
-    window.addEventListener(name, l);
-    return () => window.removeEventListener(name, l);
+export class Component extends HTMLElement {
+  static get useShadow() {
+    return true;
   }
-});
+
+  constructor() {
+    super();
+
+    let rootNode = this;
+    if (this.constructor.useShadow) {
+      rootNode = this.attachShadow({ mode: "open" });
+    }
+
+    mount(this.render(), rootNode);
+
+    const $ = s => rootNode.querySelector(s);
+    $.all = s => rootNode.querySelectorAll(s);
+    this.mounted($);
+  }
+
+  render() {
+    throw new Error("render() must be implemented.");
+  }
+
+  mounted($) {}
+}
 
 export const createStore = initialState => {
   let state = initialState;
-
-  const { publish, subscribe } = createPubSub(
-    `state(${String(Math.random()).slice(2)})`
-  );
+  let listeners = [];
 
   return {
     getState() {
@@ -96,44 +64,37 @@ export const createStore = initialState => {
     },
     setState(nextState) {
       state = { ...state, ...nextState };
-      publish(state);
+      listeners.forEach(l => l());
     },
     subscribe(f) {
-      return subscribe(f);
+      listeners.push(f);
+      return () => this.unsubscribe(f);
+    },
+    unsubscribe(f) {
+      listeners = listeners.filter(l => l !== f);
     }
   };
 };
 
 export const connect = store => baseClass =>
   class extends baseClass {
-    static get observedState() {
-      return baseClass.constructor.observedState;
-    }
-
     constructor() {
       super();
       let prevState = {};
 
-      const shouldUpdate = (state, prevState) =>
-        !this.observedState ||
-        this.observedState.length === 0 ||
-        this.observedState.some(name => state[name] === prevState[name]);
-
       this.__unsubscribe__ = store.subscribe(() => {
         const state = store.getState();
-        if (shouldUpdate(state, prevState)) {
-          this.stateChanged(state);
-          prevState = state;
-        }
+        this.stateChanged(state, prevState);
+        prevState = state;
       });
 
       const state = store.getState();
-      this.stateChanged(state);
+      this.stateChanged(state, prevState);
     }
 
     disconnectedCallback() {
       this.__unsubscribe__();
     }
 
-    stateChanged(state) {}
+    stateChanged(state, prevState) {}
   };

@@ -1,10 +1,10 @@
-import { html, unsafeHtml, ShadowComponent, connect, mount } from "./utils.js";
+import { html, Component, connect, mount } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
 import { store } from "./store.js";
 
 import "./hn-comment.js";
 
-class HnItem extends connect(store)(ShadowComponent) {
+class HnItem extends connect(store)(Component) {
   mounted($) {
     this.$item = $(".item");
   }
@@ -22,37 +22,33 @@ class HnItem extends connect(store)(ShadowComponent) {
     return ["item"];
   }
 
-  stateChanged(state) {
-    if (!state.item) return;
-    const {
-      url,
-      title,
-      points,
-      user,
-      time_ago,
-      comments,
-      comments_count,
-      content
-    } = state.item;
+  stateChanged(state, prevState) {
+    if (state.item === prevState.item || !state.item) return;
 
+    const { item } = state;
     mount(
       html`
         <h3>
-          ${content
-            ? title
-            : html`
-                <a href="${url}" target="_blank">${title}</a>
-              `}
+          ${
+            item.content
+              ? item.title
+              : html`
+                  <a href="${item.url}" target="_blank">${item.title}</a>
+                `
+          }
         </h3>
         <small>
-          ${points} points by ${user} ${time_ago} | ${comments_count} comments
+          ${item.points} points by ${item.user} ${item.time_ago} |
+          ${item.comments_count} comments
         </small>
-        ${content
-          ? unsafeHtml`
-              <p>${content}</p>
+        ${
+          item.content
+            ? html.unsafe`
+              <p>${item.content}</p>
             `
-          : ""}
-        <div>${this.commentList(comments)}</div>
+            : ""
+        }
+        <div>${this.commentList(item.comments)}</div>
       `,
       this.$item
     );

@@ -1,15 +1,17 @@
-import { html, ShadowComponent, connect } from "./utils.js";
+import { html, Component } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
-import { store } from "./store.js";
 
-class HnSpinner extends connect(store)(ShadowComponent) {
+class HnSpinner extends Component {
   mounted($) {
     this.$spinner = $(".spinner");
   }
   render() {
     return html`
       <style>
-        ${sharedStyle} .spinner {
+        ${sharedStyle} :host(hidden) {
+          display: none;
+        }
+        .spinner {
           position: absolute;
           top: calc(50% - 50px);
           left: calc(50% - 50px);
@@ -31,14 +33,6 @@ class HnSpinner extends connect(store)(ShadowComponent) {
       </style>
       <div class="spinner"></div>
     `;
-  }
-
-  static get observedState() {
-    return ["isLoading"];
-  }
-  stateChanged(state) {
-    const { isLoading } = state;
-    this.$spinner.style.display = isLoading ? "" : "none";
   }
 }
 

@@ -1,8 +1,8 @@
-import { html, ShadowComponent, connect } from "./utils.js";
+import { html, Component, connect } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
 import { store } from "./store.js";
 
-class HnTab extends connect(store)(ShadowComponent) {
+class HnTab extends connect(store)(Component) {
   mounted($) {
     this.$tabs = $.all("[data-view]");
   }
@@ -46,6 +46,7 @@ class HnTab extends connect(store)(ShadowComponent) {
   }
 
   stateChanged(state, prevState) {
+    if (state.view === prevState.view) return;
     this.$tabs.forEach(node => {
       if (node.dataset.view === state.view) {
         node.classList.add("selected");
