@@ -31,13 +31,11 @@ class HnList extends connect(store)(Component) {
     if (state.list === prevState.list) return;
     mount(
       html`
-        ${
-          state.list.map(
-            news => html`
-              <li><hn-summary item-id=${news.id}></hn-summary></li>
-            `
-          )
-        }
+        ${state.list.map(
+          news => html`
+            <li><hn-summary item-id=${news.id}></hn-summary></li>
+          `
+        )}
       `,
       this.$list
     );

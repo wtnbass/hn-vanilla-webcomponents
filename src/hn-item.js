@@ -29,25 +29,23 @@ class HnItem extends connect(store)(Component) {
     mount(
       html`
         <h3>
-          ${
-            item.content
-              ? item.title
-              : html`
-                  <a href="${item.url}" target="_blank">${item.title}</a>
-                `
-          }
+          ${item.content
+            ? item.title
+            : html`
+                <a href="${item.url}" target="_blank" rel="noopener">
+                  ${item.title}
+                </a>
+              `}
         </h3>
         <small>
           ${item.points} points by ${item.user} ${item.time_ago} |
           ${item.comments_count} comments
         </small>
-        ${
-          item.content
-            ? html.unsafe`
+        ${item.content
+          ? html.unsafe`
               <p>${item.content}</p>
             `
-            : ""
-        }
+          : ""}
         <div>${this.commentList(item.comments)}</div>
       `,
       this.$item

@@ -1,7 +1,6 @@
 import { html, Component, connect } from "./utils.js";
 import { sharedStyle } from "./shared-style.js";
-import { store } from "./store.js";
-import { changeLocation } from "./actions.js";
+import { store, changeLocation } from "./store.js";
 
 import "./hn-tab.js";
 import "./hn-list.js";

@@ -12,4 +12,10 @@ export const sharedStyle = `
   a:visited {
     color: #828282;
   }
+  @media screen and (max-width: 480px) {
+    * {
+      font-size: 16px;
+      line-height: 1.5em;
+    }
+  }
 `;

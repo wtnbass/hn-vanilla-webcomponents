@@ -2,7 +2,7 @@ export const html = (strings, ...values) => ({ strings, values });
 
 html.unsafe = (strings, ...values) => ({ strings, values, unsafe: true });
 
-export const render = ({ strings, values, unsafe }) =>
+const render = ({ strings, values, unsafe }) =>
   strings.map((s, i) => s + resolve(values[i], unsafe)).join("");
 
 const isTagged = maybeTagged =>
